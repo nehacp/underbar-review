@@ -67,9 +67,9 @@
     // TIP: Here's an example of a function that needs to iterate, which we've
     // implemented for you. Instead of using a standard `for` loop, though,
     // it uses the iteration helper `each`, which you will need to write.
-    var result = -1;
+    let result = -1;
 
-    _.each(array, function(item, index) {
+    _.each(array, (item, index) => {
       if (item === target && result === -1) {
         result = index;
       }
@@ -80,7 +80,7 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
-    var result = [];
+    let result = [];
     _.each(collection, (item) => {
       if (test(item)) {
         result.push(item);
@@ -93,20 +93,18 @@
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
-    return _.filter(collection, (item) => {
-      return !test(item);
-    });
+    return _.filter(collection, item => !test(item));
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array, isSorted, iterator = _.identity) {
-    var check = [];
-    var result = [];
+    let check = [];
+    let result = [];
     _.each(array, (item)=> {
-      var test = iterator(item);
-      if (_.indexOf(check, test) === - 1) {
+      let temp = iterator(item);
+      if (_.indexOf(check, temp) === - 1) {
         result.push(item);
-        check.push(test);
+        check.push(temp);
       }
     });
     return result;
@@ -118,7 +116,7 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
-    var result = [];
+    let result = [];
     _.each(collection, (item) => {
       result.push(iterator(item));
     });
@@ -138,9 +136,7 @@
     // TIP: map is really handy when you want to transform an array of
     // values into a new array of values. _.pluck() is solved for you
     // as an example of this.
-    return _.map(collection, function(item) {
-      return item[key];
-    });
+    return _.map(collection, item => item[key]);
   };
 
   // Reduces an array or object to a single value by repetitively calling
@@ -164,6 +160,17 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    
+    let noValue = accumulator === undefined;
+    _.each(collection, (item) => {
+      if (noValue) {
+        accumulator = item;
+        noValue = false;
+      } else {
+        accumulator = iterator(accumulator, item);
+      }
+    });
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
