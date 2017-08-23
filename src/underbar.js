@@ -162,12 +162,12 @@
   _.reduce = function(collection, iterator, accumulator) {
     
     let noValue = accumulator === undefined;
-    _.each(collection, (item) => {
+    _.each(collection, (item, i, collection) => {
       if (noValue) {
         accumulator = item;
         noValue = false;
       } else {
-        accumulator = iterator(accumulator, item);
+        accumulator = iterator(accumulator, item, i, collection);
       }
     });
     return accumulator;
@@ -304,7 +304,7 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait, ...values) {
-    setTimeout(func.bind(null, ...values), wait);
+    return setTimeout(func.bind(null, ...values), wait);
   };
 
 
@@ -319,9 +319,9 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
-    var copy = array.slice();
+    let copy = array.slice();
     _.each(copy, (value, i) => {
-      var tempIndex = Math.floor(Math.random() * copy.length);
+      let tempIndex = Math.floor(Math.random() * copy.length);
       [copy[tempIndex], copy[i]] = [copy[i], copy[tempIndex]];
     });
     return copy;
@@ -339,6 +339,9 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    let isFunction = typeof functionOrKey === 'function';
+    return _.map(collection, value => isFunction ? functionOrKey.apply(value, args) : 
+          value[functionOrKey].apply(value, args));
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -346,6 +349,9 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    let isString = typeof iterator === 'string';
+    return collection.sort((value1, value2) => isString ? value1[iterator] - value2[iterator] :
+      iterator(value1) - iterator(value2));
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -354,23 +360,49 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    let arrayOne = arguments[0];
+    let otherArrays = Array.prototype.slice.call(arguments, 1);
+    return _.reduce(arrayOne, (result, element, i) => {
+      let temp = [element];
+      _.each(otherArrays, array => temp.push(array[i]));
+      result.push(temp);
+      return result;
+     }, []);
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
   // The new array should contain all elements of the multidimensional array.
   //
   // Hint: Use Array.isArray to check if something is an array
-  _.flatten = function(nestedArray, result) {
+  _.flatten = function(nestedArray, result = []) {
+     _.each(nestedArray, item => Array.isArray(item) ? _.flatten(item, result) : result.push(item));
+    return result; 
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    let arrayOne = arguments[0];
+    let otherArrays = Array.prototype.slice.call(arguments, 1);
+    return _.reduce(arrayOne, (result, element) => {
+      if (_.every(otherArrays,  array => _.indexOf(array, element) !== -1)) {
+        result.push(element);
+      }
+      return result;
+     }, []);
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+    let arrayOne = arguments[0];
+    let otherArrays = Array.prototype.slice.call(arguments, 1);
+    return _.reduce(arrayOne, (result, element) => {
+      if (!_.some(otherArrays,  array => _.indexOf(array, element) !== -1)) {
+        result.push(element);
+      }
+      return result;
+   }, []);
   };
 
   // Returns a function, that, when invoked, will only be triggered at most once
@@ -379,5 +411,15 @@
   //
   // Note: This is difficult! It may take a while to implement.
   _.throttle = function(func, wait) {
+     let called = false;
+    return function (){
+      if (!called){
+        func();
+        called = true;
+        setTimeout(function(){
+        called = false;
+        }, wait);
+      }
+    };
   };
 }());
