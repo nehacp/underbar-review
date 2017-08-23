@@ -286,10 +286,12 @@
   // instead if possible.
   _.memoize = function(func) {
     var memory = {};
-    return () => {
-      var args = JSON.stringify(arguments);
-      if (args in memory) { return memory[args]; }
-      return memory[args] = func.apply(this, arguments);
+    return function() {
+      var key = JSON.stringify(arguments);
+      if (memory[key] === undefined) {
+        memory[key] = func.apply(null, arguments);
+      }
+      return memory[key];
     };
   };
   
@@ -301,7 +303,8 @@
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  _.delay = function(func, wait) {
+  _.delay = function(func, wait, ...values) {
+    setTimeout(func.bind(null, ...values), wait);
   };
 
 
@@ -316,6 +319,12 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var copy = array.slice();
+    _.each(copy, (value, i) => {
+      var tempIndex = Math.floor(Math.random() * copy.length);
+      [copy[tempIndex], copy[i]] = [copy[i], copy[tempIndex]];
+    });
+    return copy;
   };
 
 
