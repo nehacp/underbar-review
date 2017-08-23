@@ -177,7 +177,7 @@
   _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
-    return _.reduce(collection, function(wasFound, item) {
+    return _.reduce(collection, (wasFound, item) => {
       if (wasFound) {
         return true;
       }
@@ -188,7 +188,7 @@
 
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator = _.identity) {
-    return _.reduce(collection, function(condition, item) {
+    return _.reduce(collection, (condition, item) => {
       if (!condition) {
         return false;
       }
@@ -259,8 +259,8 @@
     // TIP: These variables are stored in a "closure scope" (worth researching),
     // so that they'll remain available to the newly-generated function every
     // time it's called.
-    var alreadyCalled = false;
-    var result;
+    let alreadyCalled = false;
+    let result;
 
     // TIP: We'll return a new function that delegates to the old one, but only
     // if it hasn't been called before.
@@ -285,9 +285,9 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-    var memory = {};
+    let memory = {};
     return function() {
-      var key = JSON.stringify(arguments);
+      let key = JSON.stringify(arguments);
       if (memory[key] === undefined) {
         memory[key] = func.apply(null, arguments);
       }
@@ -364,7 +364,7 @@
     let otherArrays = Array.prototype.slice.call(arguments, 1);
     return _.reduce(arrayOne, (result, element, i) => {
       let temp = [element];
-      _.each(otherArrays, array => temp.push(array[i]));
+      _.each(otherArrays, (array) => temp.push(array[i]));
       result.push(temp);
       return result;
      }, []);
@@ -375,7 +375,7 @@
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result = []) {
-     _.each(nestedArray, item => Array.isArray(item) ? _.flatten(item, result) : result.push(item));
+     _.each(nestedArray, (item) => Array.isArray(item) ? _.flatten(item, result) : result.push(item));
     return result; 
   };
 
@@ -385,7 +385,7 @@
     let arrayOne = arguments[0];
     let otherArrays = Array.prototype.slice.call(arguments, 1);
     return _.reduce(arrayOne, (result, element) => {
-      if (_.every(otherArrays,  array => _.indexOf(array, element) !== -1)) {
+      if (_.every(otherArrays, (array) => _.indexOf(array, element) !== -1)) {
         result.push(element);
       }
       return result;
@@ -398,7 +398,7 @@
     let arrayOne = arguments[0];
     let otherArrays = Array.prototype.slice.call(arguments, 1);
     return _.reduce(arrayOne, (result, element) => {
-      if (!_.some(otherArrays,  array => _.indexOf(array, element) !== -1)) {
+      if (!_.some(otherArrays, (array) => _.indexOf(array, element) !== -1)) {
         result.push(element);
       }
       return result;
@@ -411,7 +411,7 @@
   //
   // Note: This is difficult! It may take a while to implement.
   _.throttle = function(func, wait) {
-     let called = false;
+    let called = false;
     return function (){
       if (!called){
         func();
