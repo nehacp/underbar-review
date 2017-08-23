@@ -222,12 +222,26 @@
   //   }, {
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
-  _.extend = function(obj) {
+  _.extend = function(...obj) {
+    return _.reduce(obj, (acc, item) => {
+      _.each(item, (value, key) => {
+        acc[key] = value;
+      });
+      return acc;
+    });
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
-  _.defaults = function(obj) {
+  _.defaults = function(...obj) {
+    return _.reduce(obj, (acc, item) => {
+      _.each(item, (value, key) => {
+        if (acc[key] === undefined) {
+          acc[key] = value;
+        }
+      });
+      return acc;
+    });
   };
 
 
@@ -271,7 +285,15 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var memory = {};
+    return () => {
+      var args = JSON.stringify(arguments);
+      if (args in memory) { return memory[args]; }
+      return memory[args] = func.apply(this, arguments);
+    };
   };
+  
+ 
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
